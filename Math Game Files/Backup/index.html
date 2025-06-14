@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math-Quest Adventures</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-image: url('images/Castle.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+      overflow-y: auto;
+    }
+
+    .screen {
+      display: none;
+      padding: 20px;
+      max-width: 600px;
+      width: 90%;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      margin: 20px auto;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      color: #00f0ff;
+      font-size: 2em;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+      margin: 10px 0;
+    }
+
+    h2 {
+      color: #27bea2;
+      text-shadow: 0 0 8px rgba(9, 131, 161, 0.791);
+    }
+
+    p {
+      font-size: 1.1em;
+      color: #e0e0e0;
+      font-weight: 400;
+      margin: 10px 0;
+    }
+
+    #hero-greeting {
+      font-size: 1.2em;
+      color: #00ff00;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    }
+
+    .hero-name {
+      color: #00f0ff;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(0, 240, 255, 0.8);
+    }
+
+    button {
+      background: linear-gradient(35deg, #00f0ff, #204091);
+      opacity: 70%;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(4, 104, 132, 0.7);
+    }
+
+    button:disabled {
+      background: linear-gradient(45deg, #666, #999);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .answer-btn {
+      width: 80px;
+      margin: 5px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      font-size: 1em;
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.924);
+      width: 80%;
+      max-width: 300px;
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    li {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .castle-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin: 5px 10px;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+
+    .character-images {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .character-img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 0, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+    }
+
+    #game-content {
+      margin: 20px 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #answer-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    #timer {
+      font-weight: bold;
+      color: #00ff00;
+      text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    }
+
+    #feedback {
+      color: #ff3333;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+      min-height: 24px;
+    }
+
+    #progress-bar {
+      position: relative;
+      width: 100%;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    #progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #00f0ff, #1f41e9);
+      width: 0;
+      transition: width 0.5s ease;
+    }
+
+    #prince-progress {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      left: 0;
+      transition: left 0.5s ease;
+    }
+
+    .castle-markers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .castle-marker {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+    }
+
+    #next-castle.dragon {
+      object-fit: contain;
+      width: 28px;
+      height: 28px;
+      border: 2px solid rgba(255, 0, 0, 0.8);
+      box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+      animation: shake 0.5s infinite alternate;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(1.5deg); }
+    }
+
+    .progress-label {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, 25px);
+      font-size: 0.8em;
+      color: #00ff00;
+      text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+    }
+
+    #progress-info {
+      font-size: 1em;
+      color: #00ff00;
+      margin: 5px 0;
+    }
+
+    #question-counter {
+      font-size: 1em;
+      color: #00ff00;
+      margin: 5px 0;
+    }
+
+    #level-badge {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      font-size: 1.2em;
+      color: #00f0ff;
+      text-shadow: 0 0 5px rgba(0, 240, 255, 0.8);
+    }
+
+    /* Victory Animation Styles */
+    #victory-animation {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    #victory-prince, #victory-dragon, #victory-princess {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    #victory-prince {
+      left: 0;
+      animation: prince-attack 3s ease-in-out forwards;
+    }
+
+    #victory-dragon {
+      right: 10%;
+      animation: dragon-defeat 3s ease-in-out forwards;
+    }
+
+    #victory-princess {
+      right: 10%;
+      opacity: 0;
+      animation: princess-rescue 3s ease-in-out forwards;
+    }
+
+    @keyframes prince-attack {
+      0% { left: 0; transform: translateY(-50%) rotate(0deg); }
+      50% { left: 60%; transform: translateY(-50%) rotate(15deg) scale(1.2); }
+      70% { left: 60%; transform: translateY(-50%) rotate(-15deg) scale(1.2); }
+      100% { left: 80%; transform: translateY(-50%) rotate(0deg); }
+    }
+
+    @keyframes dragon-defeat {
+      0% { opacity: 1; transform: translateY(-50%) scale(1); }
+      50% { transform: translateY(-50%) scale(1); }
+      60% { transform: translateY(-50%) scale(1.1) rotate(5deg); }
+      70% { transform: translateY(-50%) scale(1.1) rotate(-5deg); }
+      100% { opacity: 0; transform: translateY(-50%) scale(0.5) rotate(0deg); }
+    }
+
+    @keyframes princess-rescue {
+      0% { opacity: 0; transform: translateY(-50%) scale(1); }
+      70% { opacity: 0; transform: translateY(-50%) scale(1); }
+      100% { opacity: 1; transform: translateY(-50%) scale(1); }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5em;
+      }
+      .screen {
+        padding: 10px;
+        margin: 10px;
+      }
+      button, .answer-btn {
+        padding: 8px 15px;
+        font-size: 0.9em;
+      }
+      .castle-img, .character-img {
+        width: 60px;
+        height: 60px;
+      }
+      #progress-bar {
+        height: 35px;
+      }
+      #prince-progress {
+        width: 35px;
+        height: 35px;
+      }
+      .castle-marker {
+        width: 25px;
+        height: 25px;
+      }
+      #next-castle.dragon {
+        width: 23px;
+        height: 23px;
+      }
+      .progress-label {
+        font-size: 0.7em;
+        transform: translate(-50%, 20px);
+      }
+      #progress-info, #question-counter {
+        font-size: 0.9em;
+      }
+      #victory-animation {
+        height: 140px;
+      }
+      #victory-prince, #victory-dragon, #victory-princess {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="home-screen" class="screen active">
+    <h1>Math-Quest Adventures</h1>
+    <p>Embark on a heroic quest to conquer five mystical castles! Solve math challenges to defeat the dragon and save the princess! Are you ready, brave adventurer?</p>
+    <button onclick="showScreen('name-screen')">Start Quest</button>
+  </div>
+
+  <div id="name-screen" class="screen">
+    <h2>Who Are You, Hero?</h2>
+    <input type="text" id="hero-name" placeholder="Enter your name" required oninput="validateNameInput()">
+    <button id="startAdventureBtn" onclick="startAdventure()" disabled>Begin Adventure</button>
+  </div>
+
+  <div id="castle-screen" class="screen">
+    <h2>Choose Your Path</h2>
+    <p id="hero-greeting"></p>
+    <ul>
+      <li><img src="images/c1.jpeg" alt="Castle 1" class="castle-img"><button id="castle-btn-1" onclick="startLevel(1)">Level 1: Addition</button></li>
+      <li><img src="images/c2.jpg" alt="Castle 2" class="castle-img"><button id="castle-btn-2" onclick="startLevel(2)" disabled>Level 2: Subtraction</button></li>
+      <li><img src="images/c3.jpg" alt="Castle 3" class="castle-img"><button id="castle-btn-3" onclick="startLevel(3)" disabled>Level 3: Multiplication</button></li>
+      <li><img src="images/c4.jpeg" alt="Castle 4" class="castle-img"><button id="castle-btn-4" onclick="startLevel(4)" disabled>Level 4: Division</button></li>
+      <li><img src="images/c5.jpeg" alt="Castle 5" class="castle-img"><button id="castle-btn-5" onclick="startLevel(5)" disabled>Level 5: Mixed</button></li>
+    </ul>
+  </div>
+
+  <div id="game-screen" class="screen">
+    <h1>Math-Quest Adventures</h1>
+    <div id="progress-bar">
+      <div id="progress-fill"></div>
+      <img id="prince-progress" src="images/Prince.png" alt="Prince">
+      <div class="castle-markers">
+        <img id="current-castle" src="images/c1.jpeg" alt="Current Castle" class="castle-marker">
+        <span id="current-castle-label" class="progress-label"></span>
+        <img id="next-castle" src="images/c2.jpg" alt="Next Castle" class="castle-marker">
+        <span id="next-castle-label" class="progress-label"></span>
+      </div>
+    </div>
+    <div id="progress-info">Progress: <span id="progress-percent">0</span>%</div>
+    <div id="question-counter">Question <span id="question-number">1</span>/10</div>
+    <div id="game-content">
+      <div id="level-badge">Level <span id="level-number">1</span>: <span id="level-type">Addition</span></div>
+      <p id="question">Solve: 2 + 3 = ?</p>
+      <div id="answer-options">
+        <button class="answer-btn" onclick="submitAnswer(this)" data-value=""></button>
+        <button class="answer-btn" onclick="submitAnswer(this)" data-value=""></button>
+        <button class="answer-btn" onclick="submitAnswer(this)" data-value=""></button>
+        <button class="answer-btn" onclick="submitAnswer(this)" data-value=""></button>
+      </div>
+      <p id="feedback"></p>
+      <p>Score: <span id="score">0</span></p>
+      <p>Time: <span id="timer">60</span>s</p>
+    </div>
+    <button onclick="showScreen('home-screen')">Back to Home</button>
+  </div>
+
+  <div id="victory-screen" class="screen">
+    <div id="victory-animation">
+      <img id="victory-prince" src="images/Prince.png" alt="Prince">
+      <img id="victory-dragon" src="images/Dragon.png" alt="Dragon">
+      <img id="victory-princess" src="images/Princess.webp" alt="Princess">
+    </div>
+    <h1>Victory!</h1>
+    <p>The prince defeated the dragon and saved the princess!</p>
+    <div class="character-images">
+      <img src="images/Prince.png" alt="Prince" class="character-img">
+      <img src="images/Princess.webp" alt="Princess" class="character-img">
+    </div>
+    <p>Hero: <span id="victory-hero"></span></p>
+    <p>Final Score: <span id="victory-score"></span></p>
+    <button onclick="showScreen('home-screen')">Return to Home</button>
+  </div>
+
+  <script>
+    let currentLevel = 1;
+    let score = 0;
+    let timer = 60;
+    let timerInterval;
+    let heroName = '';
+    let correctAnswers = 0;
+    let currentCorrectAnswer = 0;
+    const totalQuestions = 10;
+    let completedLevels = [false, false, false, false, false];
+    const progressImages = [
+      'images/c1.jpeg',
+      'images/c2.jpg',
+      'images/c3.jpg',
+      'images/c4.jpeg',
+      'images/c5.jpeg',
+      'images/Dragon.png'
+    ];
+
+    // Audio elements
+    const correctSound = new Audio('sounds/correct.mp3');
+    const incorrectSound = new Audio('sounds/incorrect.mp3');
+    const dragonSound = new Audio('sounds/dragon.mp3');
+
+    // Load saved progress
+    function loadProgress() {
+      const saved = localStorage.getItem('mathQuestProgress');
+      if (saved) {
+        completedLevels = JSON.parse(saved);
+      }
+    }
+
+    // Save progress
+    function saveProgress() {
+      localStorage.setItem('mathQuestProgress', JSON.stringify(completedLevels));
+    }
+
+    // Reset progress
+    function resetProgress() {
+      completedLevels = [false, false, false, false, false];
+      saveProgress();
+    }
+
+    function sanitizeInput(input) {
+      return input.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      if (screenId === 'game-screen') {
+        updateCastleMarkers();
+        updateQuestionCounter();
+        startTimer();
+      }
+      if (screenId === 'castle-screen') {
+        updateCastleButtons();
+        document.getElementById('hero-greeting').innerHTML = `Hero <span class="hero-name">${heroName}</span>, conquer each castle to reach the final challenge:`;
+      }
+      if (screenId === 'home-screen') {
+        resetProgress();
+      }
+    }
+
+    function validateNameInput() {
+      const heroNameInput = document.getElementById('hero-name').value.trim();
+      const startBtn = document.getElementById('startAdventureBtn');
+      startBtn.disabled = heroNameInput.length === 0;
+    }
+
+    function updateCastleMarkers() {
+      const currentCastleImg = document.getElementById('current-castle');
+      const nextCastleImg = document.getElementById('next-castle');
+      const currentLabel = document.getElementById('current-castle-label');
+      const nextLabel = document.getElementById('next-castle-label');
+      const currentIndex = currentLevel - 1;
+      const nextIndex = currentLevel < 5 ? currentLevel : 5;
+      currentCastleImg.src = progressImages[currentIndex];
+      currentCastleImg.title = `Castle ${currentLevel}`;
+      currentCastleImg.classList.remove('dragon');
+      nextCastleImg.src = progressImages[nextIndex];
+      nextCastleImg.title = nextIndex === 5 ? 'Dragon' : `Castle ${nextIndex + 1}`;
+      nextCastleImg.classList.toggle('dragon', nextIndex === 5);
+      const startPercent = (currentLevel - 1) * 20;
+      const endPercent = startPercent + 20;
+      currentCastleImg.style.left = `${startPercent}%`;
+      nextCastleImg.style.left = `${endPercent}%`;
+      currentLabel.style.left = `${startPercent}%`;
+      currentLabel.textContent = `${startPercent}%`;
+      nextLabel.style.left = `${endPercent}%`;
+      nextLabel.textContent = `${endPercent}%`;
+      if (nextIndex === 5) {
+        dragonSound.play().catch(() => {});
+      }
+    }
+
+    function updateQuestionCounter() {
+      document.getElementById('question-number').textContent = correctAnswers + 1;
+    }
+
+    function startAdventure() {
+      heroName = sanitizeInput(document.getElementById('hero-name').value);
+      if (heroName) {
+        loadProgress();
+        showScreen('castle-screen');
+      }
+    }
+
+    function startLevel(level) {
+      if (!isLevelUnlocked(level)) return;
+      currentLevel = level;
+      score = 0;
+      correctAnswers = 0;
+      timer = 60;
+      document.getElementById('score').textContent = score;
+      document.getElementById('timer').textContent = timer;
+      document.getElementById('level-number').textContent = level;
+      document.getElementById('level-type').textContent = getLevelName(level);
+      updateProgress();
+      updateQuestionCounter();
+      generateQuestion();
+      showScreen('game-screen');
+    }
+
+    function getLevelName(level) {
+      const names = ['Addition', 'Subtraction', 'Multiplication', 'Division', 'Mixed'];
+      return names[level - 1];
+    }
+
+    function isLevelUnlocked(level) {
+      if (level === 1) return true;
+      return completedLevels[level - 2];
+    }
+
+    function updateCastleButtons() {
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`castle-btn-${i}`);
+        btn.disabled = !isLevelUnlocked(i);
+      }
+    }
+
+    function generateQuestion() {
+      let a, b, op, answer;
+      if (currentLevel === 1) {
+        // Addition: 1–10
+        a = Math.floor(Math.random() * 10) + 1;
+        b = Math.floor(Math.random() * 10) + 1;
+        op = '+';
+        answer = a + b;
+      } else if (currentLevel === 2) {
+        // Subtraction: 1–20
+        a = Math.floor(Math.random() * 20) + 1;
+        b = Math.floor(Math.random() * 20) + 1;
+        if (a < b) [a, b] = [b, a];
+        op = '-';
+        answer = a - b;
+      } else if (currentLevel === 3) {
+        // Multiplication: 1–12
+        a = Math.floor(Math.random() * 12) + 1;
+        b = Math.floor(Math.random() * 12) + 1;
+        op = '*';
+        answer = a * b;
+      } else if (currentLevel == 4) {
+        // Division: Dividend up to 100, divisor 1–10
+        b = Math.floor(Math.random() * 10) + 1;
+        answer = Math.floor(Math.random() * 10) + 1;
+        a = answer * b;
+        op = '/';
+      } else {
+        // Mixed: Randomly select from above ranges
+        const ops = ['+', '-', '*', '/'];
+        op = ops[Math.floor(Math.random() * 4)];
+        if (op === '+') {
+          a = Math.floor(Math.random() * 10) + 1;
+          b = Math.floor(Math.random() * 10) + 1;
+          answer = a + b;
+        } else if (op === '-') {
+          a = Math.floor(Math.random() * 20) + 1;
+          b = Math.floor(Math.random() * 20) + 1;
+          if (a < b) [a, b] = [b, a];
+          answer = a - b;
+        } else if (op === '*') {
+          a = Math.floor(Math.random() * 12) + 1;
+          b = Math.floor(Math.random() * 12) + 1;
+          answer = a * b;
+        } else {
+          b = Math.floor(Math.random() * 10) + 1;
+          answer = Math.floor(Math.random() * 10) + 1;
+          a = answer * b;
+        }
+      }
+
+      currentCorrectAnswer = answer;
+      document.getElementById('question').textContent = `Solve: ${a} ${op} ${b} = ?`;
+      generateAnswerOptions();
+    }
+
+    function generateAnswerOptions() {
+      const options = [currentCorrectAnswer];
+      while (options.length < 4) {
+        let wrongAnswer;
+        do {
+          wrongAnswer = currentCorrectAnswer + Math.floor(Math.random() * 20) - 10;
+        } while (options.includes(wrongAnswer) || wrongAnswer < 0);
+        options.push(wrongAnswer);
+      }
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      const buttons = document.querySelectorAll('.answer-btn');
+      buttons.forEach((btn, index) => {
+        btn.textContent = options[index];
+        btn.dataset.value = options[index];
+      });
+    }
+
+    function submitAnswer(button) {
+      const userAnswer = parseFloat(button.dataset.value);
+
+      if (userAnswer === currentCorrectAnswer) {
+        score += 10;
+        correctAnswers++;
+        timer += 15;
+        document.getElementById('feedback').textContent = 'Correct! +15 seconds';
+        document.getElementById('timer').textContent = timer;
+        correctSound.play().catch(() => {});
+        updateProgress();
+        updateQuestionCounter();
+      } else {
+        score = Math.max(0, score - 10);
+        timer = Math.max(0, timer - 10);
+        document.getElementById('feedback').textContent = `Incorrect! The correct answer is ${currentCorrectAnswer}. -10 points, -10 seconds`;
+        document.getElementById('timer').textContent = timer;
+        incorrectSound.play().catch(() => {});
+      }
+
+      document.getElementById('score').textContent = score;
+
+      if (correctAnswers >= totalQuestions) {
+        completedLevels[currentLevel - 1] = true;
+        saveProgress();
+        clearInterval(timerInterval);
+        if (currentLevel < 5) {
+          showScreen('castle-screen');
+        } else {
+          document.getElementById('victory-hero').textContent = heroName;
+          document.getElementById('victory-score').textContent = score;
+          showScreen('victory-screen');
+        }
+      } else {
+        generateQuestion();
+      }
+    }
+
+    function updateProgress() {
+      const levelProgress = (correctAnswers / totalQuestions) * 20;
+      const totalProgress = ((currentLevel - 1) * 20) + levelProgress;
+      document.getElementById('progress-percent').textContent = Math.round(totalProgress);
+      document.getElementById('progress-fill').style.width = `${totalProgress}%`;
+      document.getElementById('prince-progress').style.left = `${totalProgress}%`;
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timer = 60;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timer--;
+        updateTimerDisplay();
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          alert('Time’s up!');
+          showScreen('home-screen');
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      document.getElementById('timer').textContent = timer;
+    }
+  </script>
+</body>
+</html>
